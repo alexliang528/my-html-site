@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>报名成功｜真好教育</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        :root { 
+            --primary: #1677ff; 
+            --gold: #fadb14; 
+            --gold-dark: #d4b106;
+            --red: #ff4d4f; 
+            --text-main: #333;
+            --text-sub: #666;
+            --bg-page: #f4f6f9;
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-page); 
+            margin: 0; 
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 40px;
+        }
+        
+        /* 顶部成功横幅 */
+        .header { 
+            background: linear-gradient(135deg, #0050b3 0%, #1677ff 100%); 
+            color: white; 
+            padding: 40px 20px 50px; 
+            text-align: center; 
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 4px 15px rgba(22, 119, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: rotate 20s linear infinite;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .container { max-width: 500px; margin: -35px auto 0; padding: 0 16px; position: relative; z-index: 10; }
+        
+        /* 通用卡片布局 */
+        .card { 
+            background: #fff; 
+            border-radius: 20px; 
+            padding: 24px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04); 
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        /* 锁定遮罩样式 */
+        .locked-mask {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.6); 
+            backdrop-filter: blur(4px); /* 磨砂玻璃效果 */
+            z-index: 50;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: #333;
+            transition: opacity 0.5s ease;
+        }
+        .lock-icon { font-size: 32px; margin-bottom: 10px; }
+        .lock-text { font-size: 14px; font-weight: bold; background: #fff; padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        /* 填写报名表卡片样式 */
+        .signup-card {
+            border: 2px solid #1677ff;
+            background: #f0f7ff;
+            display: block; 
+        }
+        .step-badge {
+            background: #1677ff; color: #fff; font-size: 12px; padding: 4px 8px; 
+            border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 8px;
+        }
+
+        /* 抽奖模块 */
+        .lottery-card { border: 2px solid #ffccc7; background: #fff1f0; }
+        .lottery-badge {
+            background: var(--red); color: #fff; font-size: 12px; padding: 4px 12px;
+            border-radius: 0 0 0 12px; position: absolute; top: 0; right: 0; font-weight: bold;
+        }
+
+        /* VIP卡模块 */
+        .vip-card { 
+            background: linear-gradient(145deg, #1f1f1f, #2c2c2c);
+            color: var(--gold); 
+            border: 1px solid #4a4a4a;
+            position: relative;
+        }
+        .vip-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            animation: scan 2s infinite;
+        }
+        @keyframes scan { 0% { opacity:0.2; } 50% { opacity:1; } 100% { opacity:0.2; } }
+
+        .vip-card .benefit-row {
+            display: flex; align-items: flex-start; margin-bottom: 18px;
+        }
+        .benefit-icon { font-size: 22px; margin-right: 14px; margin-top: 2px; }
+        .benefit-text b { color: #fff; display: block; margin-bottom: 4px; font-size: 15px; }
+        .benefit-text span { font-size: 13px; color: #a1a1a6; line-height: 1.4; display: block; }
+
+        /* 社交证明 */
+        .social-proof {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 24px 0 15px; /* 底部间距调整 */
+            border: 1px dashed rgba(250, 219, 20, 0.3);
+        }
+        .stat-header { display: flex; justify-content: space-between; font-size: 12px; color: #ccc; margin-bottom: 8px; }
+        .stat-bar-bg { background: #444; height: 8px; border-radius: 4px; overflow: hidden; }
+        .stat-bar-fill { 
+            background: linear-gradient(90deg, var(--gold) 0%, #fffbe6 100%); 
+            height: 100%; width: 0%; 
+            transition: width 1.5s ease-out; 
+            border-radius: 4px;
+        }
+        .stat-text { text-align: center; margin-top: 10px; font-size: 13px; color: var(--gold); }
+        .stat-number { font-size: 18px; font-weight: 800; color: #fff; margin: 0 2px; }
+
+        /* 倒计时 */
+        .urgent-timer-box { 
+            background: rgba(255, 77, 79, 0.15); 
+            border: 1px solid rgba(255, 77, 79, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+            animation: border-pulse 2s infinite;
+        }
+        @keyframes border-pulse { 0% { border-color: rgba(255, 77, 79, 0.3); } 50% { border-color: rgba(255, 77, 79, 0.8); } 100% { border-color: rgba(255, 77, 79, 0.3); } }
+
+        .urgent-label { font-size: 12px; color: #ffccc7; margin-bottom: 4px; display: block;}
+        #timer { 
+            color: #ff4d4f; 
+            font-weight: 800; 
+            font-family: 'Courier New', monospace; 
+            font-size: 28px; 
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 77, 79, 0.4);
+        }
+
+        /* 警告条 */
+        .warning-strip {
+            background: #fff2f0;
+            color: #cf1322;
+            font-size: 12px;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ffccc7;
+            font-weight: 500;
+        }
+
+        /* 按钮体系 */
+        .btn { 
+            display: block; width: 100%; padding: 16px 0; border-radius: 12px; 
+            text-align: center; font-weight: bold; text-decoration: none; 
+            border: none; cursor: pointer; transition: transform 0.1s; 
+            font-size: 16px;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-blue { background: #1677ff; color: white; box-shadow: 0 6px 15px rgba(22, 119, 255, 0.3); }
+        .btn-red { background: linear-gradient(to right, #ff7875, #ff4d4f); color: white; box-shadow: 0 6px 15px rgba(255,77,79,0.3); }
+        .btn-gold { background: linear-gradient(to right, #fadb14, #ffec3d); color: #000; box-shadow: 0 6px 15px rgba(250,219,20,0.2); }
+        .btn-green { background: #07c160; color: white; box-shadow: 0 6px 15px rgba(7, 193, 96, 0.3); }
+        .btn-secondary { background: transparent; border: 1px solid var(--red); color: var(--red); margin-top: 12px; font-size: 14px; padding: 14px 0; }
+        .btn-disabled { background: #e8e8e8 !important; color: #999 !important; box-shadow: none !important; cursor: not-allowed; }
+
+        /* 弹窗通用 */
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; padding:20px; box-sizing:border-box; opacity: 0; transition: opacity 0.3s; }
+        .modal.active { opacity: 1; }
+        .modal-content { background:#fff; width:100%; max-width:340px; border-radius: 20px; padding: 24px; text-align:center; transform: translateY(20px); transition: transform 0.3s; position: relative; }
+        .modal.active .modal-content { transform: translateY(0); }
+        .close-icon { position: absolute; top: 15px; right: 15px; font-size: 24px; color: #ccc; cursor: pointer; line-height: 1; z-index: 10; }
+
+        /* 九宫格 */
+        .lottery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .lottery-cell {
+            background: #fff;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            padding: 4px;
+            transition: all 0.1s;
+        }
+        .lottery-cell.active {
+            background: #fff1f0;
+            border-color: var(--red);
+            color: var(--red);
+            font-weight: bold;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 77, 79, 0.3);
+        }
+        .lottery-btn {
+            background: var(--red);
+            color: white;
+            border: none;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #cf1322;
+        }
+        .lottery-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #cf1322;
+        }
+        .lottery-btn.disabled {
+            background: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 支付二维码框 & 上传框 */
+        .qr-frame {
+            border: 1px solid #eee; padding: 10px; border-radius: 12px; margin: 15px auto;
+            width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; background: #fafafa;
+            position: relative; overflow: hidden;
+        }
+        .qr-frame img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* 任务弹窗 */
+        .task-box { background: #f9f9f9; padding: 15px; border-radius: 12px; text-align: left; margin-bottom: 15px; border: 1px dashed #ddd; }
+        .copy-area { background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 8px; font-size: 13px; color: #555; margin: 8px 0; position: relative; }
+        .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .upload-btn-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; width: 100%; }
+
+        .pulse { animation: pulse-animation 2s infinite; }
+        @keyframes pulse-animation {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(255, 77, 79, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 79, 0); }
+        }
+        
+        .win-anim { animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1 style="margin:0; font-size: 24px;">🎉 报名已受理</h1>
+    <p style="margin:8px 0 0; opacity:0.9; font-size: 15px;">真好教育，伴您孩子步步领先</p>
+</div>
+
+<div class="container">
+    
+    <!-- 步骤1 报名引导卡片 -->
+    <div class="card signup-card" id="signupCard">
+        <div class="step-badge">待完成</div>
+        <h3 style="margin:0 0 10px; color:#1677ff;">📝 第一步：填写报名表</h3>
+        <p style="font-size:14px; color:#666; margin-bottom:20px;">
+            请点击下方按钮填写报名信息，提交后返回本页面解锁<b>“新生大礼包抽奖”</b>及<b>“会员特权”</b>。
+        </p>
+        
+        <!-- 金山文档跳转链接 -->
+        <a href="https://f.kdocs.cn/g/hbVc2j00/" target="_blank" class="btn btn-blue" onclick="handleJumpToForm()">👉 点击前往填写报名表</a>
+        
+        <!-- 确认完成区 -->
+        <div id="confirmArea" style="display:none; margin-top:15px; border-top:1px dashed #cce0ff; padding-top:15px;">
+            <p style="font-size:13px; color:#666; text-align:center;">您完成提交了吗？</p>
+            <button class="btn btn-green" onclick="unlockPage()">✅ 我已填写完成，解锁福利</button>
+        </div>
+    </div>
+
+    <!-- 模块 1：抽奖福利 -->
+    <div class="card lottery-card">
+        <div class="locked-mask" id="lotteryMask">
+            <div class="lock-icon">🔒</div>
+            <div class="lock-text">请先完成上方报名表填写</div>
+        </div>
+
+        <div class="lottery-badge">限时福利</div>
+        <h3 style="margin:0 0 10px; color:var(--red); display:flex; align-items:center;">
+            🎁 真好教育·新生礼包已到账
+        </h3>
+        <p style="font-size:14px; color:var(--text-sub); line-height:1.6; margin-bottom: 20px;">
+            欢迎加入真好教育！系统已为您自动分配 <b>1次</b> 线上抽奖机会。<br>
+            <span style="font-size:12px; color:#999;">(奖品包含：学习资料包、文具套装、抵用金等)</span>
+        </p>
+        <button id="lotteryBtn" class="btn btn-red pulse" onclick="openLotteryModal()">立即参与抽奖</button>
+        <button id="taskBtn" class="btn btn-secondary" onclick="openShareTaskModal()">
+            <span id="share-btn-text">📲 转发朋友圈再抽1次 (翻倍中奖率)</span>
+        </button>
+    </div>
+
+    <!-- 模块 2：VIP 转化 (修改后) -->
+    <div class="card vip-card">
+        <div class="locked-mask" id="vipMask">
+            <div class="lock-icon">🔒</div>
+            <div class="lock-text">报名后解锁 VIP 权益</div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div>
+                <span style="font-size:18px; font-weight:bold; color: #fff;">真好教育·奖学金合伙人卡</span>
+                <!-- 动态排名 -->
+                <div style="font-size:11px; color: #ffccc7; margin-top:4px;">
+                    ✨ 系统随机选中：您是本月第 <span id="lucky-rank" style="font-weight:bold; color:#fff;">-</span> 位幸运家长
+                </div>
+            </div>
+            <span style="background:var(--red); color:#fff; font-size:12px; padding:4px 8px; border-radius:6px; font-weight:bold; box-shadow: 0 0 8px rgba(255, 77, 79, 0.5);">仅此一次</span>
+        </div>
+
+        <!-- 权益列表 -->
+        <div class="benefit-row">
+            <div class="benefit-icon">📉</div>
+            <div class="benefit-text">
+                <b>真好教育全线课程 9 折特权</b>
+                <span>报课即享，单科最高省 600+ 元，一单回本。</span>
+            </div>
+        </div>
+
+        <div class="benefit-row">
+            <div class="benefit-icon">🤝</div>
+            <div class="benefit-text">
+                <b>分享分润提至 8%</b>
+                <span>不仅省钱，更能赚钱。推荐 1 位新生即可回本。</span>
+            </div>
+        </div>
+
+        <!-- 社交证明 -->
+        <div class="social-proof">
+            <div class="stat-header">
+                <span>当前选择率</span>
+                <span>🔥 仅剩少量名额</span>
+            </div>
+            <div class="stat-bar-bg">
+                <div class="stat-bar-fill" id="progressBar"></div>
+            </div>
+            <div class="stat-text">
+                已有 <span class="stat-number" id="parent-count">...</span> 位家长锁定此权益<br>
+                占比 <b style="color:#fff;">85%</b> 的明智选择
+            </div>
+        </div>
+
+        <!-- 修改点1：警告条移至此处，内容修改 -->
+        <div class="warning-strip">
+            ⚠️ 警告：离开或关闭本页面，半价购买合伙人权限将永久失效
+        </div>
+
+        <!-- 修改点2：倒计时文案修改 -->
+        <div class="urgent-timer-box">
+            <span class="urgent-label">⚡原价199,限时10分钟半价权限锁定倒计时 (超时自动销毁)</span> 
+            <span id="timer">10:00</span>
+        </div>
+
+        <button class="btn btn-gold" onclick="showPayModal()">👉 锁定 VIP 专属权限 (￥99)</button>
+        <p style="text-align:center; font-size:13px; color:#e6e6e6; margin-top:15px; font-weight: 500;">
+            🛡️ 零风险承诺：一年内未获益，99元全额原路退还
+        </p>
+    </div>
+</div>
+
+<!-- 弹窗区域 -->
+<div id="lotteryModal" class="modal">
+    <div class="modal-content" style="background: #fff0f0; max-width: 320px;">
+        <span class="close-icon" onclick="closeModal('lotteryModal')">&times;</span>
+        <h3 style="color:#cf1322; margin:0 0 5px;">🎰 幸运大抽奖</h3>
+        <p style="font-size:12px; color:#666; margin:0;">祝您好运连连，点击中间按钮开始</p>
+        <div class="lottery-grid" id="lotteryGrid"></div>
+    </div>
+</div>
+
+<div id="shareTaskModal" class="modal">
+    <div class="modal-content" style="text-align: left;">
+        <span class="close-icon" onclick="closeModal('shareTaskModal')">&times;</span>
+        <h3 style="margin-top:0; text-align: center;">🚀 解锁第 2 次抽奖</h3>
+        <div class="task-box">
+            <b style="color:#333; font-size:14px;">第一步：复制话术并发朋友圈</b>
+            <div class="copy-area" id="copyText">
+                刚给孩子在真好教育报了名，就一个-老师太棒了！我们出来找不就是想找靠谱的好老师吗？推荐各位家长来看看！[玫瑰]
+            </div>
+            <button class="btn btn-gold" style="padding: 8px 0; font-size: 13px; margin-top: 5px;" onclick="copyText()">📄 复制话术</button>
+        </div>
+        <div class="task-box">
+            <b style="color:#333; font-size:14px;">第二步：上传朋友圈截图</b>
+            <div class="upload-btn-wrapper">
+                <button class="btn btn-secondary" id="uploadBtnText" style="margin-top: 8px;">📸 点击上传截图凭证</button>
+                <input type="file" id="screenshotInput" accept="image/*" onchange="handleFileUpload(this)">
+            </div>
+            <p style="font-size:12px; color:#999; margin: 5px 0 0;">系统自动识别中，请确保截图清晰</p>
+        </div>
+    </div>
+</div>
+
+<div id="resultModal" class="modal">
+    <div class="modal-content win-anim">
+        <h2 style="color:#ff4d4f; margin:0;">🎉 恭喜中奖！</h2>
+        <div style="font-size:50px; margin:15px 0;">🎁</div>
+        <p style="font-size:20px; color:#333; font-weight:bold; margin-bottom: 25px;" id="winPrizeName">奖品名称</p>
+        <div class="btn btn-red" style="cursor: default; background: #ff4d4f; box-shadow: none; font-size: 16px;">
+            📸 请截屏该中奖凭证！
+        </div>
+        <p style="font-size:14px; color:#333; margin-top:15px; font-weight: 500;">
+            稍后微信发给海彬老师，领取！
+        </p>
+        <p style="font-size:12px; color:#ccc; margin-top:20px; cursor:pointer;" onclick="closeModal('resultModal')">关闭窗口</p>
+    </div>
+</div>
+
+<div id="payModal" class="modal">
+    <div class="modal-content">
+        <span class="close-icon" onclick="closeModal('payModal')">&times;</span>
+        <h3 style="margin:0; color:#333;">最后一步：锁定权益</h3>
+        <button class="btn btn-green" style="margin-top:20px; margin-bottom:15px;" onclick="window.location.href='https://i.wosai.cn/4gAgAj'">🚀 点击前往支付 (推荐)</button>
+        <p style="font-size:13px; color:#666; margin:0 0 5px;">或 长按识别下方二维码</p>
+        <div class="qr-frame">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fi.wosai.cn%2F4gAgAj" alt="支付二维码">
+        </div>
+        <div style="background:#fefce8; padding:12px; border-radius:10px; font-size:13px; color:#854d0e; text-align:left; line-height:1.5;">
+            <b>💡 支付提示：</b><br>
+            支付成功后请<b>截图保存</b>，点击下方按钮发给 海彬 老师，为您手动激活黑金权益。
+        </div>
+        <button class="btn btn-secondary" style="margin-top:15px; border-color:#ccc; color:#666;" onclick="contactTeacher()">已支付，联系老师激活</button>
+    </div>
+</div>
+
+<script>
+    // --- 新增逻辑：处理随机数字和排名 ---
+    function initDynamicNumbers() {
+        // 1. 排名逻辑 (根据日期决定)
+        const date = new Date().getDate();
+        let luckyRank;
+        
+        if (date <= 10) {
+            // 月初 (1-10号): 随机 1 或 3
+            luckyRank = Math.random() > 0.5 ? 1 : 3;
+        } else if (date <= 20) {
+            // 月中 (11-20号): 随机 5 或 7
+            luckyRank = Math.random() > 0.5 ? 5 : 7;
+        } else {
+            // 月末 (21号以后): 随机 7 或 9
+            luckyRank = Math.random() > 0.5 ? 7 : 9;
+        }
+        document.getElementById('lucky-rank').innerText = luckyRank;
+
+        // 2. 锁定人数逻辑 (200-300之间随机，固定不跳动)
+        const randomCount = Math.floor(Math.random() * 101) + 200;
+        document.getElementById('parent-count').innerText = randomCount;
+    }
+
+    // --- 报名解锁逻辑 ---
+    let hasSignedUp = localStorage.getItem('hasSignedUp') === 'true';
+
+    function checkSignupStatus() {
+        if (hasSignedUp) {
+            document.getElementById('signupCard').style.display = 'none';
+            document.getElementById('lotteryMask').style.display = 'none';
+            document.getElementById('vipMask').style.display = 'none';
+        } else {
+            document.getElementById('signupCard').style.display = 'block';
+            document.getElementById('lotteryMask').style.display = 'flex';
+            document.getElementById('vipMask').style.display = 'flex';
+        }
+    }
+
+    function handleJumpToForm() {
+        document.getElementById('confirmArea').style.display = 'block';
+    }
+
+    function unlockPage() {
+        if(confirm('请确认您已在金山文档提交了报名表？')) {
+            localStorage.setItem('hasSignedUp', 'true');
+            hasSignedUp = true;
+            alert('🎉 验证成功！权益已为您解锁。');
+            document.getElementById('signupCard').style.display = 'none';
+            const masks = document.querySelectorAll('.locked-mask');
+            masks.forEach(mask => {
+                mask.style.opacity = '0';
+                setTimeout(() => mask.style.display = 'none', 500);
+            });
+        }
+    }
+
+    // --- 抽奖与页面基础逻辑 ---
+    const prizes = ["精美文具套盒", "100元课程券", "谢谢参与", "名师1对1诊断", "立即抽奖", "百词斩单词书", "再接再厉", "50元书券", "神秘大礼包"];
+    const targetPrize1 = 3; 
+    const targetPrize2 = 1;
+    let lotteryState = parseInt(localStorage.getItem('lotteryState')) || 0;
+    const cellOrder = [0, 1, 2, 5, 8, 7, 6, 3];
+    let activeIndex = 0;
+    let speed = 100;
+    let timer = null;
+    let isRunning = false;
+    let currentCycle = 0;
+    
+    function initPageState() {
+        const btn = document.getElementById('lotteryBtn');
+        const taskBtn = document.getElementById('taskBtn');
+        if (lotteryState === 0) {} 
+        else if (lotteryState === 1) {
+            btn.innerText = '✅ 第1次已中奖 (点击查看)';
+            btn.classList.remove('pulse', 'btn-red');
+            btn.style.background = '#52c41a'; btn.style.color = '#fff';
+            btn.onclick = () => showResultDirectly(targetPrize1);
+            taskBtn.classList.add('pulse');
+        } else if (lotteryState === 2) {
+            btn.innerText = '🔥 开启第 2 次抽奖';
+            btn.classList.add('pulse', 'btn-red');
+            btn.style.background = ''; 
+            btn.onclick = openLotteryModal;
+            taskBtn.innerText = '✅ 转发任务已完成';
+            taskBtn.classList.add('btn-disabled');
+            taskBtn.classList.remove('pulse');
+            taskBtn.onclick = null;
+        } else if (lotteryState === 3) {
+            btn.innerText = '🎉 最终大奖已领取 (点击查看)';
+            btn.classList.remove('pulse', 'btn-red');
+            btn.style.background = '#722ed1'; btn.style.color = '#fff';
+            btn.onclick = () => showResultDirectly(targetPrize2);
+            taskBtn.innerText = '✅ 转发任务已完成';
+            taskBtn.classList.add('btn-disabled');
+            taskBtn.onclick = null;
+        }
+    }
+
+    function initLottery() {
+        const grid = document.getElementById('lotteryGrid');
+        grid.innerHTML = '';
+        prizes.forEach((prize, index) => {
+            const cell = document.createElement('div');
+            if (index === 4) { 
+                cell.className = 'lottery-btn';
+                cell.innerText = lotteryState === 2 ? '开启\n二轮' : '开始\n抽奖';
+                cell.onclick = startLottery;
+            } else {
+                cell.className = 'lottery-cell';
+                cell.id = `cell-${index}`;
+                cell.innerText = prize;
+            }
+            grid.appendChild(cell);
+        });
+    }
+
+    function startLottery() {
+        if (isRunning) return;
+        if (lotteryState !== 0 && lotteryState !== 2) return;
+        isRunning = true; speed = 100; currentCycle = 0;
+        document.querySelector('.lottery-btn').classList.add('disabled');
+        runRoll();
+    }
+
+    function runRoll() {
+        document.querySelectorAll('.lottery-cell').forEach(c => c.classList.remove('active'));
+        const cellIndex = cellOrder[activeIndex];
+        document.getElementById(`cell-${cellIndex}`).classList.add('active');
+        activeIndex++;
+        if (activeIndex >= cellOrder.length) activeIndex = 0;
+        currentCycle++;
+        if (currentCycle > 30 && speed < 500) { speed += 40; }
+        
+        let targetIndex = (lotteryState === 0) ? targetPrize1 : targetPrize2;
+        let prevIndex = activeIndex === 0 ? cellOrder.length - 1 : activeIndex - 1;
+        if (currentCycle > 40 && cellOrder[prevIndex] === targetIndex) {
+            clearTimeout(timer);
+            isRunning = false;
+            setTimeout(() => {
+                if(lotteryState === 0) lotteryState = 1;
+                else if(lotteryState === 2) lotteryState = 3;
+                localStorage.setItem('lotteryState', lotteryState);
+                showWinResult(prizes[targetIndex]);
+                document.querySelector('.lottery-btn').classList.remove('disabled');
+                initPageState();
+            }, 500);
+            return;
+        }
+        timer = setTimeout(runRoll, speed);
+    }
+
+    function showWinResult(prizeName) {
+        closeModal('lotteryModal');
+        document.getElementById('winPrizeName').innerText = prizeName;
+        openModal('resultModal');
+    }
+    
+    function showResultDirectly(prizeIndex) {
+        document.getElementById('winPrizeName').innerText = prizes[prizeIndex];
+        openModal('resultModal');
+    }
+
+    function openLotteryModal() {
+        if (lotteryState === 1) { showResultDirectly(targetPrize1); return; }
+        if (lotteryState === 3) { showResultDirectly(targetPrize2); return; }
+        initLottery(); openModal('lotteryModal');
+    }
+
+    function openShareTaskModal() {
+        if (lotteryState === 2 || lotteryState === 3) return;
+        openModal('shareTaskModal');
+    }
+
+    function copyText() {
+        const text = document.getElementById('copyText').innerText;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => alert('✅ 话术已复制！\n请打开朋友圈粘贴文案 + 发图片'));
+        } else {
+            alert('❌ 您的浏览器不支持自动复制，请长按文字手动复制');
+        }
+    }
+
+    function handleFileUpload(input) {
+        if (input.files && input.files[0]) {
+            const btn = document.getElementById('uploadBtnText');
+            btn.innerText = '⏳ 正在智能验证中...';
+            setTimeout(() => {
+                alert('✅ 截图验证通过！\n第 2 次抽奖机会已解锁！');
+                closeModal('shareTaskModal');
+                lotteryState = 2;
+                localStorage.setItem('lotteryState', 2);
+                initPageState();
+            }, 1500);
+        }
+    }
+
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+    
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
+
+    function contactTeacher() { alert("请直接添加海彬老师微信发送截图。"); }
+    function showPayModal() { openModal('payModal'); }
+
+    // 运行初始化
+    checkSignupStatus();
+    initPageState();
+    initDynamicNumbers(); // 调用新的数字生成逻辑
+    setTimeout(() => { document.getElementById('progressBar').style.width = '85%'; }, 500);
+
+    let time = 600;
+    const timerEl = document.getElementById('timer');
+    const timerInterval = setInterval(() => {
+        time--;
+        let min = String(Math.floor(time / 60)).padStart(2, '0');
+        let sec = String(time % 60).padStart(2, '0');
+        timerEl.innerText = `${min}:${sec}`;
+        if(time <= 0) {
+            clearInterval(timerInterval);
+            timerEl.innerText = "00:00";
+            document.querySelector('.btn-gold').style.background = '#ccc';
+            document.querySelector('.btn-gold').innerText = '⛔️ 权限已失效';
+            document.querySelector('.btn-gold').onclick = () => alert("抱歉，该权益已过时效，系统已自动销毁。");
+        }
+    }, 1000);
+</script>
+
+</body>
+</html>
